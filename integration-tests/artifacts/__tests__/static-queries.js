@@ -153,6 +153,15 @@ describe(`Static Queries`, () => {
     expect(staticQueryHashes.sort()).toEqual(queries.map(hashQuery).sort())
   })
 
+  test("are written correctly with circular dependency", async () => {
+    const queries = [titleQuery, ...globalQueries]
+    const pagePath = `/circular-dep/`
+
+    const { staticQueryHashes } = await readPageData(publicDir, pagePath)
+
+    expect(staticQueryHashes.sort()).toEqual(queries.map(hashQuery).sort())
+  })
+
   // test(`are written correctly when using wrapRootElement`, async () => {
   //   const queries = [titleQuery]
   //   const pagePath = `/dynamic-import/`

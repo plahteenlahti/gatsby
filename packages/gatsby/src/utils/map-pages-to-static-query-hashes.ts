@@ -82,7 +82,7 @@ export function mapTemplatesToStaticQueryHashes(
   const getDeps = (mod: IModule): Set<string> => {
     const staticQueryModuleComponentPath = mod.resource
     const result = new Set<string>()
-    const seen = new Set<string>()
+    const seen = new Set<string>([mod.resource])
 
     // This is the body of the recursively called function
     const getDepsFn = (m: IModule, seen: Set<string>): Set<string> => {
