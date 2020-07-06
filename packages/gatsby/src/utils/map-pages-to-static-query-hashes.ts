@@ -82,9 +82,10 @@ export function mapTemplatesToStaticQueryHashes(
   const getDeps = (mod: IModule): Set<string> => {
     const staticQueryModuleComponentPath = mod.resource
     const result = new Set<string>()
+    const seen = new Set<string>()
 
     // This is the body of the recursively called function
-    const getDepsFn = (m: IModule): Set<string> => {
+    const getDepsFn = (m: IModule, seen: Set<string>): Set<string> => {
       // Reasons in webpack are literally reasons of why this module was included in the tree
       const hasReasons = m.hasReasons()
 
@@ -110,12 +111,14 @@ export function mapTemplatesToStaticQueryHashes(
         })
         .map(r => r.module)
         .filter(Boolean)
+        .filter(r => !r.resource || !seen.has(r.resource))
 
       const uniqDependents = uniqBy(nonTerminalDependents, d => d?.identifier())
 
       for (const uniqDependent of uniqDependents) {
         if (uniqDependent.resource) {
           result.add(uniqDependent.resource)
+          seen.add(uniqDependent.resource)
         }
 
         if (
@@ -124,13 +127,13 @@ export function mapTemplatesToStaticQueryHashes(
         ) {
           globalStaticQueries.add(staticQueryModuleComponentPath)
         }
-        getDepsFn(uniqDependent)
+        getDepsFn(uniqDependent, seen)
       }
 
       return result
     }
 
-    return getDepsFn(mod)
+    return getDepsFn(mod, seen)
   }
 
   const mapOfStaticQueryComponentsToDependants = new Map()
